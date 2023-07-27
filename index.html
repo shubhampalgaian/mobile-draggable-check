@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resizable and Position Images</title>
+
+    <link
+      rel="stylesheet"
+      href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"
+    />
+    <!-- Include jQuery and jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+
+    <!-- Include jQuery UI Touch Punch for touch support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+    <style>
+      #parent {
+        display: flex;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="parent"></div>
+
+    <script>
+      var topCard;
+      const gridLayoutData = [
+        {
+          position_data: {
+            y: "0",
+            x: "0",
+            w: "140",
+            h: "78.75",
+          },
+          percentage_position_data: {
+            y: "0",
+            x: "0",
+            w: "50",
+            h: "49.681528662420384",
+          },
+          section_id: "BZWEEr",
+          layout_id: "CBdnVXStWBE1Piy",
+        },
+        {
+          position_data: {
+            y: "0",
+            x: "140",
+            w: "140",
+            h: "78.75",
+          },
+          percentage_position_data: {
+            y: "0",
+            x: "50",
+            w: "50",
+            h: "49.681528662420384",
+          },
+          section_id: "aSO9Av",
+          layout_id: "CBdnVXStWBE1Piy",
+        },
+        {
+          position_data: {
+            y: "78.75",
+            x: "0",
+            w: "140",
+            h: "78.75",
+          },
+          percentage_position_data: {
+            y: "49.681528662420384",
+            x: "0",
+            w: "50",
+            h: "49.681528662420384",
+          },
+          section_id: "mrE7ic",
+          layout_id: "CBdnVXStWBE1Piy",
+        },
+      ];
+
+      var get_layout_from_json = (
+        layout_data,
+        filling_data = "",
+        filling_field = ""
+      ) => {
+        var currently_clicked_element = "";
+        console.log("inside get_layout_from_json func");
+        console.log(
+          "layout_json_data : ",
+          layout_data,
+          " filling data : ",
+          filling_data,
+          " filling field : ",
+          filling_field
+        );
+        layout_config = layout_data;
+        if (filling_data) {
+          json_for_filling_layout_local = filling_data;
+        }
+
+        var parent_container = document.getElementById("parent");
+        parent_container.innerHTML = "";
+        parent_container.style.justifyContent = "center";
+        parent_container.style.alignItems = "center";
+
+        console.log("creating parent div for layout");
+
+        var paerentgrid = document.createElement("div");
+        paerentgrid.setAttribute("id", "paerentgrid");
+        paerentgrid.style.height = "70%";
+        paerentgrid.style.width = "90%";
+        paerentgrid.style.position = "relative";
+
+        console.log("created parent div");
+
+        function createChildDiv(item) {
+          console.log("inside get layout foreach func");
+          console.log("creating child div");
+
+          var element = document.createElement("div");
+          console.log("item data:", item);
+          element.style.display = "flex";
+          element.style.justifyContent = "center";
+          element.style.alignItems = "center";
+          element.style.position = "absolute";
+          element.setAttribute("section-id", item.section_id);
+          element.setAttribute("class", "draggable skipthis");
+          element.style.top = `${item.percentage_position_data.y}%`;
+          element.style.left = `${item.percentage_position_data.x}%`;
+          element.style.width = `${item.percentage_position_data.w}%`;
+          element.style.height = `${item.percentage_position_data.h}%`;
+          element.style.border = "1px solid black";
+          element.style.backgroundColor = "rgb(205,218,236)";
+          element.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (window.location.href.includes("cdn") || framework) {
+              console.log("inside box click event");
+              console.log("show var key : ", showListOfCastDevices);
+              currently_clicked = item.section_id;
+              currently_clicked_element = e.target;
+
+              if (currently_clicked_element.tagName.toLowerCase() === "img") {
+                currently_clicked_element =
+                  currently_clicked_element.parentElement;
+              }
+
+              curr_element = currently_clicked_element;
+              console.log(
+                
+                "currently clicked element : ",
+                currently_clicked_element
+              );
+
+              console.log(
+
+                "currently clicked element : ",
+                currently_clicked_element
+              );
+              console.log("curr clicked : ", currently_clicked);
+              framework.setVariable(showListOfCastDevices, item.section_id);
+              console.log("layout config from show list : ", layout_config);
+            }
+          });
+
+          if (filling_data && filling_field) {
+            var curr_data = filling_data.filter(
+              (data) => data.section_id === item.section_id
+            );
+            console.log("curr data : ", curr_data);
+            if (
+              curr_data.length > 0 &&
+              curr_data[0].hasOwnProperty(filling_field)
+            ) {
+              var value = curr_data[0][filling_field];
+              console.log("value : ", value);
+              if (value.includes("http")) {
+                var image_element = document.createElement("img");
+                image_element.style.height = "100%";
+                image_element.style.width = "100%";
+                image_element.src = value;
+                element.appendChild(image_element);
+              } else {
+                element.innerHTML = value;
+              }
+            }
+          }
+
+          paerentgrid.appendChild(element);
+        }
+
+        if (layout_config) {
+          const sections =
+            layout_config.layout_sections ||
+            layout_config.layout_section ||
+            layout_config;
+          sections.forEach(createChildDiv);
+        }
+
+        parent_container.appendChild(paerentgrid);
+        console.log("attached parent to playground");
+
+        saveConfig_Data();
+      };
+
+      function saveConfig_Data() {
+        const parent = document.getElementById("paerentgrid");
+        var shadow_box = document.createElement("div");
+        shadow_box.setAttribute("id", "top-card");
+        shadow_box.style.cssText = `
+            height: 50%;
+            width: 100%;
+            display: flex;
+            position: absolute;
+            top: 0;
+            left: 0;
+            // background-image: url("https://res.cloudinary.com/doh91aq3h/image/upload/v1689319905/Screenshot%20from%202023-07-14%2012-56-34.png.png");
+
+            opacity: .4;
+          `;
+        console.log("attahched shadow");
+        parent.appendChild(shadow_box);
+
+        var image = new Image();
+
+        image.setAttribute(
+          "src",
+          "https://res.cloudinary.com/doh91aq3h/image/upload/v1689319905/Screenshot%20from%202023-07-14%2012-56-34.png.png"
+        );
+        image.style.cssText = `
+          width: 100%;
+          height: 100%
+        `;
+        shadow_box.appendChild(image);
+
+        try {
+          $("#top-card").draggable({
+            containment: "#paerentgrid",
+            stop: function () {
+              calculateTopCardRect();
+            },
+          });
+
+          $("#top-card").resizable({
+            containment: "#paerentgrid",
+          });
+
+          $("#top-card").on("resize", function (event, ui) {
+            console.log("being resize");
+            calculateTopCardRect();
+          });
+        } catch (error) {
+          console.log("Error : ", error);
+        }
+      }
+      function calculateTopCardRect() {
+        console.log("inside top card rect");
+        const topCard = document.getElementById("top-card");
+        const parentElement = topCard.parentElement;
+
+        const topCardRect = topCard.getBoundingClientRect();
+        const parentRect = parentElement.getBoundingClientRect();
+
+        top_card = {
+          y: ((topCardRect.top - parentRect.top) / parentRect.height) * 100,
+          x: ((topCardRect.left - parentRect.left) / parentRect.width) * 100,
+          w: (topCardRect.width / parentRect.width) * 100,
+          h: (topCardRect.height / parentRect.height) * 100,
+        };
+
+        console.log("top card : ", top_card);
+      }
+      get_layout_from_json(gridLayoutData);
+    </script>
+  </body>
+</html>
